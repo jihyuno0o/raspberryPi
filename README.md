@@ -229,7 +229,7 @@ int main(int argc, char *argv[]) // int main(int argc, char *argv[])
 ```
 
 조도센서를 이용해서
-200 이하는 led On 이상은 led Off
+200 이상(어두울때)은 led On 이하(밝을때)는 led Off
 ```
 #include <stdio.h>
 #include <string.h>
