@@ -278,8 +278,56 @@ int main(int argc, char *argv[]) // int main(int argc, char *argv[])
 ![KakaoTalk_20210520_164006480](https://user-images.githubusercontent.com/79901413/118938960-27d79f80-b98a-11eb-9419-7d72eb3924b8.jpg)
 
 
+### 2021-05-21
 
+초음파 센서 사용하기 
 
+가청 주파수 (20-20K Hz), 
+음속 340m/sec
+
+1. trig 발사
+2. 발사와 동시 timer 가동
+3. Echo 감지와 동시 timer 종료
+4. 3.-2.의 dt(Ms) 계산
+5. dt*1.7mm 
+
+초음파 센서로 거리 측정하기
+```
+#include <stdio.h>
+#include <stdlib.h>
+#include <wiringPi.h>
+
+int main()
+{
+	int wTrig = 15;
+	int wEcho = 16;
+	
+	wiringPiSetup();
+	pinMode(wTrig, OUTPUT); // 측정 신호 발사
+	pinMode(wEcho, INPUT); // 반사 신호 검출 
+	
+	while(1)
+	{
+		digitalWrite(wTrig, LOW); 
+		delayMicroseconds(100); // 트리거 신호를 위한 초기화 
+		
+		digitalWrite(wTrig, HIGH);
+		delayMicroseconds(10); 
+		digitalWrite(wTrig, LOW); // 10us 의 트리거 신호
+		delayMicroseconds(200); // 실제 신호발사까지 지연시간 
+		
+		while(digitalRead(wEcho) == LOW); // until high
+		long start = micros(); // micros() : 현재 시간의 마이크로초 단위 count
+		while(digitalRead(wEcho) == HIGH); // until low
+		long end = micros(); 
+		
+		double dist = (end - start) * 0.17; // 음속으로 계산하기
+		printf("Distance : %f \n" , dist);
+		delay(1000);		
+	}
+
+}
+```
 
 
 
