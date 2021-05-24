@@ -347,6 +347,47 @@ i2cdetect -y 1 : i2c Address 확인
 
 (16384? 2^14 = 16384 로 14비트를 사용한다)
 
+```
+#include <stdio.h>
+#include <wiringPi.h>
+#include <wiringPiI2C.h>
+short i2cInt16(int hndl, int addr);
 
+int main()
+{
+	int i2cAddr = 0x68; // i2cdetect -y 1 로 확인
+	int bufAddr = 0x3b; // Memory Block
+	int pwrAddr = 0x6b; // 0x가 16진수 
+	
+	wiringPiSetup();
+	int hndl = wiringPiI2CSetup(i2cAddr); // i2c 주소 넣어야함
+	
+	// wiringPiI2CWriteReg8(fd, addr, value): 해당 메모리 번지에 값을 쓸 수 있다.
+	wiringPiI2CWriteReg8(hndl, pwrAddr, 0);  // 0 값으로 초기화
+	
+	double x1,y1,z1,x2,y2,z2;
+
+	while(1)
+	{
+		x1 = i2cInt16(hndl, bufAddr)/16384.0;
+		y1 = i2cInt16(hndl, bufAddr+2)/16384.0;
+		z1 = i2cInt16(hndl, bufAddr+4)/16384.0;
+		x2 = i2cInt16(hndl, bufAddr+8)/131.0; // 온도 데이터 건너뜀
+		y2 = i2cInt16(hndl, bufAddr+10)/131.0;
+		z2 = i2cInt16(hndl, bufAddr+12)/131.0;
+		
+		printf("[x1=%f y1=%f z1=%f], [x2=%f y2=%f z2=%f]\n", x1,y1,z1,x2,y2,z2);
+		// [가속도](측정값/16384)g, [각속도](측정값/131)°/s
+	}
+}
+
+short i2cInt16(int hndl, int addr)
+{
+	short d1 = wiringPiI2CReadReg8(hndl, addr);
+	short d2 = wiringPiI2CReadReg8(hndl, addr+1);
+	short d3 = (d1 << 8 | d2); // 비트 쉬프트 레프트? 상위로 옮김 
+	return d3;
+}
+```
 
 
