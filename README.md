@@ -153,12 +153,24 @@ int main()
 ### 2021-05-20
 
 pwd 현재위치 ls 파일 리스트 ls -al 자세히
+
 mkdir ** 디렉토리 만들기 **디렉토리이름
+
 rmdir 디렉토리 삭제
+
 cd ** 디렉토리 들어가기
+
 find . *.h | grep -r strcmp 찾기 strcmp다 찾아줌 
+
 ->라이브러리 찾을 때 extern 붙어있는 거 찾으면 됨 
+
 (대신 cd /usr/include 로 가야함)
+
+![image](https://user-images.githubusercontent.com/79901413/119457265-744e2100-bd76-11eb-93cc-524cc77b02df.png)
+
+(inet_addr 찾는거)
+
+.
 
 p4 온도 p5 조도 p6 가변
 채널번호 0: 조도센서 1: 온도센서 3:가변
