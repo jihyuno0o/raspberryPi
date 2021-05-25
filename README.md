@@ -398,3 +398,80 @@ short i2cInt16(int hndl, int addr)
 ```
 
 
+### 2021-05-25
+
+초음파 센서를 이용해서 LED제어하기
+
+거리에 따라서 RED, YELLOW, GREEN 색을 키도록 한다
+
+.
+
+![KakaoTalk_20210525_110235725](https://user-images.githubusercontent.com/79901413/119428978-e1e35880-bd48-11eb-831c-efc37c76300c.jpg)
+
+.
+
+```
+#include <stdio.h>
+#include <stdlib.h>
+#include <wiringPi.h>
+
+int main()
+{
+	int wTrig = 15;
+	int wEcho = 16;
+	int wRed = 25;
+	int wGreen = 24;
+	int wYellow = 23;
+	
+	wiringPiSetup();
+	pinMode(wTrig, OUTPUT); // 측정 신호 발사
+	pinMode(wEcho, INPUT); // 반사 신호 검출
+	pinMode(wRed, OUTPUT);
+	pinMode(wGreen, OUTPUT);
+	pinMode(wYellow, OUTPUT);
+	
+	while(1)
+	{
+		digitalWrite(wTrig, LOW); 
+		delayMicroseconds(100); // 트리거 신호를 위한 초기화 
+		
+		digitalWrite(wTrig, HIGH);
+		delayMicroseconds(10); 
+		digitalWrite(wTrig, LOW); // 10us 의 트리거 신호
+		delayMicroseconds(200); // 실제 신호발사까지 지연시간 
+		
+		while(digitalRead(wEcho) == LOW); // until high
+		long start = micros(); // micros() : 현재 시간의 마이크로초 단위 count
+		while(digitalRead(wEcho) == HIGH); // until low
+		long end = micros(); 
+		
+		double dist = (end - start) * 0.17;
+		printf("Distance : %f \n" , dist);	
+			
+		if(dist <= 100)
+		{
+			digitalWrite(wRed, HIGH);
+			digitalWrite(wYellow, LOW);
+			digitalWrite(wGreen, LOW);
+		}
+		else if(dist > 100 && dist <= 300)
+		{
+			digitalWrite(wRed, LOW);
+			digitalWrite(wYellow, HIGH);
+			digitalWrite(wGreen, LOW);
+		}
+		else
+		{
+			digitalWrite(wRed, LOW);
+			digitalWrite(wYellow, LOW);
+			digitalWrite(wGreen, HIGH);
+		}
+			
+
+		delay(1000);		
+	}
+
+}
+```
+
+
