@@ -486,4 +486,34 @@ int main()
 }
 ```
 
+.
+
+.
+
+라즈베리파이 socket 통신
+
+.
+
+
+
+<Client>
+
+1. Socket 선언
+
+2. 초기화/생성/Open 구성
+
+3. Connection to Server
+
+<Server>
+
+1. Socket 선언
+
+2. 초기화/생성/Open 구성 
+//구성 단계까지는 Client와 같음
+
+3. Bind - local port
+
+4. Listen
+
+5. Accept (Client의 Connetion 요청을 받아들임 -> Session 연결)
 
