@@ -347,6 +347,13 @@ i2cdetect -y 1 : i2c Address 확인
 
 (16384? 2^14 = 16384 로 14비트를 사용한다)
 
+.
+
+![image](https://user-images.githubusercontent.com/79901413/119425094-b27d1d80-bd41-11eb-8cac-2f7bd75abda3.png)
+ 
+.
+
+
 ```
 #include <stdio.h>
 #include <wiringPi.h>
