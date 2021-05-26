@@ -526,4 +526,78 @@ fprintf : file 출력
 	
 sprintf : buffer 출력
 
+. 
+
+초음파센서에서 읽은 값을 Sever form 창에서 볼 수 있다.
 	
+```
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <fcntl.h>
+#include <wiringPi.h>
+
+char *IP = "192.168.0.35";
+int PORT = 9001;
+
+int main()
+{
+	int wTrig = 15;
+	int wEcho = 16;
+	
+	wiringPiSetup();
+	pinMode(wTrig, OUTPUT); // 측정 신호 발사
+	pinMode(wEcho, INPUT); // 반사 신호 검출 
+	
+	int sock; // socket handle
+	struct sockaddr_in sockinfo;
+	char buf[1024];
+	int i,j,k;
+	
+	sock = socket(AF_INET, SOCK_STREAM, 0);
+	sockinfo.sin_family = AF_INET;
+	inet_pton(AF_INET, IP, &sockinfo.sin_addr.s_addr); // sin_addr: 32bit=long
+	sockinfo.sin_port = htons(PORT);
+	
+	connect(sock, (struct sockaddr*)&sockinfo, sizeof(sockinfo));	
+	k = fcntl(sock, F_SETFL, 0);
+	fcntl(sock, F_SETFL, k | O_NONBLOCK);
+	 
+	while(1)
+	{	
+		digitalWrite(wTrig, LOW); 
+		delayMicroseconds(100); // 트리거 신호를 위한 초기화 
+		
+		digitalWrite(wTrig, HIGH);
+		delayMicroseconds(10); 
+		digitalWrite(wTrig, LOW); // 10us 의 트리거 신호
+		delayMicroseconds(200); // 실제 신호발사까지 지연시간 
+		
+		while(digitalRead(wEcho) == LOW); // until high
+		long start = micros(); // micros() : 현재 시간의 마이크로초 단위 count
+		while(digitalRead(wEcho) == HIGH); // until low
+		long end = micros(); 
+		
+		double dist = (end - start) * 0.17;
+		sprintf(buf,"Distance : %f \n" , dist);
+		if(buf[0] == 'q') break;
+		send(sock, buf, strlen(buf), 0);
+		delay(1000);		
+		
+		
+/*		scanf("%s",buf);
+		if(buf[0] == 'q') break;
+		send(sock, buf, strlen(buf), 0); //strlen: 해당 어레이의 길이를 반환
+		i = recv(sock, buf, 1024, 0);
+		if(i > 0) buf[i] = 0;
+		if(buf[0] == 'q') break;
+		printf("%s\n", buf);
+		*/
+	}
+	close(sock);
+}
+```
