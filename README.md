@@ -517,3 +517,13 @@ int main()
 
 5. Accept (Client의 Connetion 요청을 받아들임 -> Session 연결)
 
+
+### 2021-05-26
+
+printf : console 출력
+	
+fprintf : file 출력
+	
+sprintf : buffer 출력
+
+	
