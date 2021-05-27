@@ -601,3 +601,142 @@ int main()
 	close(sock);
 }
 ```
+
+	
+### 2021-05-27
+
+tcp 통신 client
+
+```
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <fcntl.h>
+#include <wiringPi.h>
+#include <pthread.h>
+
+void * readProc();
+int PORT = 9001;
+int sock, sock_cli;
+struct sockaddr_in sockinfo, sockinfo_cli;
+char buf[1024]; // 1k
+
+int main()
+{
+   pthread_t readThread;
+
+   sock = socket(AF_INET, SOCK_STREAM, 0);
+   sockinfo.sin_family = AF_INET;
+   sockinfo.sin_addr.s_addr = htonl(INADDR_ANY);
+   sockinfo.sin_port = htons(PORT);
+   
+   bind(sock, (struct sockaddr*)&sockinfo, sizeof(sockinfo)); 
+   listen(sock, 100);
+   int n = sizeof(sockinfo_cli);
+   sock_cli = accept(sock, (struct sockaddr*)&sockinfo_cli, &n);
+   
+   pthread_create(&readThread, NULL, readProc, NULL);
+
+
+   while(1)
+   {
+      printf("Input text > ");
+      scanf("%s",buf);
+      if(buf[0] == 'q') break;
+      send(sock_cli, buf, strlen(buf), 0);
+   }
+   close(sock);
+   pthread_join(readThread, NULL);
+
+}
+
+void * readProc()
+{
+   int i;
+   char buf[1024];
+   while(1)
+   {
+      i = recv(sock_cli, buf, 1024, 0);
+      if(i > 0) 
+      {
+         buf[i] = 0;
+         printf("%s\n", buf); // console 출력
+      }
+      delay(500);
+   }
+   return NULL;
+}
+```
+	
+.
+	
+tcp 통신 Server
+
+```
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <fcntl.h>
+#include <wiringPi.h>
+#include <pthread.h>
+
+void * readProc();
+int PORT = 9001;
+int sock, sock_cli; // socket handle
+struct sockaddr_in sockinfo, sockinfo_cli;
+char buf[1024]; // 1k
+
+int main()
+{
+   pthread_t readThread;
+
+   sock = socket(AF_INET, SOCK_STREAM, 0);
+   sockinfo.sin_family = AF_INET;
+   sockinfo.sin_addr.s_addr = htonl(INADDR_ANY);
+   sockinfo.sin_port = htons(PORT);
+   
+   bind(sock, (struct sockaddr*)&sockinfo, sizeof(sockinfo)); 
+   listen(sock, 100);
+   int n = sizeof(sockinfo_cli);
+   sock_cli = accept(sock, (struct sockaddr*)&sockinfo_cli, &n);
+   
+   pthread_create(&readThread, NULL, readProc, NULL);
+
+
+   while(1)
+   {
+      printf("Input text > ");
+      scanf("%s",buf);
+      if(buf[0] == 'q') break;
+      send(sock_cli, buf, strlen(buf), 0);
+   }
+   close(sock);
+   pthread_join(readThread, NULL);
+
+}
+
+void * readProc()
+{
+   int i;
+   char buf1[1024];
+   while(1)
+   {
+      i = recv(sock_cli, buf1, 1024, 0);
+      if(i > 0) 
+      {
+         buf1[i] = 0;
+         printf("%s\n", buf1); // console 출력
+      }
+      delay(500);
+   }
+   return NULL;
+}
+```
+
+	
